@@ -42,3 +42,5 @@ class Shot:
 
     def draw(self, screen):
         pygame.draw.circle(screen, (255, 255, 255), (self.x, self.y), 5)
+
+        
