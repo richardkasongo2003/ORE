@@ -1,6 +1,8 @@
 import pygame
 import sys
+import random
 from diver import Diver
+from asteroid import Asteroid
 
 class Game:
     def __init__(self):
@@ -10,9 +12,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.is_running = True
         self.diver = Diver(400, 300)
-        
         self.diver_image = pygame.image.load("image/player_walk_2.png").convert_alpha()
-        # self.gun_image = pygame.image.load("gun.png").convert_alpha()
+        self.asteroids = []
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -34,10 +35,27 @@ class Game:
         self.screen.fill((0, 0, 255))
         self.diver.draw_shots(self.screen)
         self.screen.blit(self.diver_image, (self.diver.x - self.diver_image.get_width() / 2, self.diver.y - self.diver_image.get_height() / 2))
+
+        # Draw asteroids
+        for asteroid in self.asteroids:
+            asteroid.draw(self.screen)
+
         pygame.display.flip()
 
     def update(self):
         self.diver.update_shots()
+
+        # Generate asteroids randomly
+        if len(self.asteroids) < 5:  # Control the number of asteroids
+            # Randomize asteroid position
+            x = random.randint(0, 800)
+            y = random.randint(0, 600)
+            asteroid = Asteroid(x, y)
+            self.asteroids.append(asteroid)
+
+        # Move and update asteroids
+        for asteroid in self.asteroids:
+            asteroid.move()
 
     def start(self):
         while self.is_running:
@@ -52,4 +70,5 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.start()
+
 
