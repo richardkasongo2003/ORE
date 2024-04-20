@@ -14,6 +14,7 @@ class Game:
         self.diver = Diver(400, 300)
         self.diver_image = pygame.image.load("image/player_walk_2.png").convert_alpha()
         self.asteroids = []
+        self.last_asteroid_spawn_time = pygame.time.get_ticks()  # Time of last asteroid spawn
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -31,6 +32,28 @@ class Game:
                 elif event.key == pygame.K_SPACE:
                     self.diver.shoot()
 
+    def update(self):
+        self.diver.update_shots()
+
+        # Spawn asteroids every 5 seconds
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_asteroid_spawn_time > 5000:
+            x = random.randint(0, 800)  # Random x-coordinate
+            asteroid = Asteroid(x, 0)  # Spawn asteroid at the top of the screen
+            self.asteroids.append(asteroid)
+            self.last_asteroid_spawn_time = current_time  # Update last spawn time
+
+        # Move and update asteroids
+        for asteroid in self.asteroids:
+            asteroid.move()
+
+            # Check collision with shots
+            for shot in self.diver.shots:
+                if asteroid.check_collision(shot):
+                    self.asteroids.remove(asteroid)
+                    self.diver.shots.remove(shot)
+                    break  # Break out of the inner loop once collision is detected
+
     def draw(self):
         self.screen.fill((0, 0, 255))
         self.diver.draw_shots(self.screen)
@@ -41,21 +64,6 @@ class Game:
             asteroid.draw(self.screen)
 
         pygame.display.flip()
-
-    def update(self):
-        self.diver.update_shots()
-
-        # Generate asteroids randomly
-        if len(self.asteroids) < 5:  # Control the number of asteroids
-            # Randomize asteroid position
-            x = random.randint(0, 800)
-            y = random.randint(0, 600)
-            asteroid = Asteroid(x, y)
-            self.asteroids.append(asteroid)
-
-        # Move and update asteroids
-        for asteroid in self.asteroids:
-            asteroid.move()
 
     def start(self):
         while self.is_running:
@@ -70,5 +78,3 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.start()
-
-
